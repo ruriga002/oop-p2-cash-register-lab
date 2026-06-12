@@ -7,26 +7,40 @@ class CashRegister:
 
         # Running total of all items in cart
         self.total = 0
-
-        # Stores names of items added to cart
+        # List of items in cart
         self.items = []
-
-        # Keeps history of all transactions for undo/void feature
+        # List of previous transactions for voiding purposes
         self.previous_transactions = []
 
         # Validate and assign discount if valid
         self.set_discount(discount)
 
     def add_item(self, item, price, quantity):
-        # Update total price based on item price and quantity
+      # Validate inputs
         self.total += price * quantity
+        self.items.append(item)
 
-    # Track item in cart
-    self.items.append(item)
+        self.previous_transactions.append({
+            "item": item,
+            "price": price,
+            "quantity": quantity
+        })
 
-    # Store transaction for possible rollback (void feature)
-    self.previous_transactions.append({
-        "item": item,
-        "price": price,
-        "quantity": quantity
-    })
+    def apply_discount(self):
+        if not self.previous_transactions:
+            print("There is no discount to apply.")
+            return
+
+        self.total -= (self.discount / 100) * self.total
+        self.previous_transactions.pop()
+        self.items.pop()
+
+    def void_last_transaction(self):
+        if not self.previous_transactions:
+            return
+
+        last = self.previous_transactions.pop()
+        self.total -= last["price"] * last["quantity"]
+
+        if last["item"] in self.items:
+            self.items.remove(last["item"])
