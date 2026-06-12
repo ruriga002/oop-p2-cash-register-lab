@@ -7,16 +7,27 @@ class CashRegister:
 
         # Running total of all items in cart
         self.total = 0
+
         # List of items in cart
         self.items = []
-        # List of previous transactions for voiding purposes
+
+        # List of previous transactions
         self.previous_transactions = []
 
-        # Validate and assign discount if valid
+        # Default discount
+        self.discount = 0
+
+        # Validate and assign discount
         self.set_discount(discount)
 
+    def set_discount(self, discount):
+        # Ensure discount is an integer
+        if isinstance(discount, int) and 0 <= discount <= 100:
+            self.discount = discount
+        else:
+            print("Not valid discount")
+
     def add_item(self, item, price, quantity):
-      # Validate inputs
         self.total += price * quantity
         self.items.append(item)
 
@@ -31,16 +42,19 @@ class CashRegister:
             print("There is no discount to apply.")
             return
 
-        self.total -= (self.discount / 100) * self.total
-        self.previous_transactions.pop()
-        self.items.pop()
+        discount_amount = self.total * (self.discount / 100)
+        self.total -= discount_amount
 
     def void_last_transaction(self):
         if not self.previous_transactions:
+            print("There is no transaction to void.")
             return
 
-        last = self.previous_transactions.pop()
-        self.total -= last["price"] * last["quantity"]
+        last_transaction = self.previous_transactions.pop()
 
-        if last["item"] in self.items:
-            self.items.remove(last["item"])
+        self.total -= (
+            last_transaction["price"] *
+            last_transaction["quantity"]
+        )
+
+        self.items.pop()
